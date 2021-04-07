@@ -1,14 +1,17 @@
-package server
+package main
 
 import (
 	pb "bookmanagement/bookinfomgt"
 	"context"
 	"flag"
-	"fmt"
 	"log"
 	"net"
 
 	"google.golang.org/grpc"
+)
+
+var (
+	port = flag.String("port", ":50051", "set port")
 )
 
 type BookInfoMgtServer struct {
@@ -48,7 +51,7 @@ func (s *BookInfoMgtServer) QueryByName(ctx context.Context, request *pb.QueryBy
 }
 
 func (s *BookInfoMgtServer) Delete(ctx context.Context, request *pb.DeleteRequest) (*pb.DeleteResponse, error) {
-	fmt.Println(request.Id, "deleted from books")
+	log.Println(request.Id, "deleted from books")
 
 	for k, v := range s.books {
 		if v.Id == request.Id {
@@ -63,13 +66,13 @@ func init() {
 	flag.Parse()
 }
 
-func Start(port string) {
-	lis, err := net.Listen("tcp", port)
+func main() {
+	lis, err := net.Listen("tcp", *port)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
 
-	log.Println("listen at", port)
+	log.Println("listen at", *port)
 
 	s := grpc.NewServer()
 	books := make(map[int64]*pb.Book)

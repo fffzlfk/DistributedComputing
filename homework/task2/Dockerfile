@@ -6,6 +6,6 @@ ADD . /bookmgtapp/
 WORKDIR /bookmgtapp
 RUN go env -w GOPROXY=https://goproxy.cn
 RUN go mod download
-RUN go build .
+RUN go build /server.server.go
 
 CMD ["/bookmgtapp/bookmanagement"]
