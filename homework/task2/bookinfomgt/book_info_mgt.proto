@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+option go_package = "bookmanagement/bookinfomgt";
+
+package bookinfomgt;
+
+service BookInfoMgt {
+    rpc AddBook(Book) returns (AddBookResponse) {}
+    rpc QueryById(QueryByIdRequest) returns (Book) {}
+    rpc QueryByName(QueryByNameRequest) returns (BookList) {}
+    rpc Delete(DeleteRequest) returns (DeleteResponse) {}
+}
+
+message Book {
+    int64 id = 1;
+    string name = 2;
+}
+
+message AddBookResponse{
+    bool ok = 1;
+}
+
+message QueryByIdRequest {
+    int64 id = 1;
+}
+
+message BookList {
+    repeated Book books = 1;
+}
+
+message QueryByNameRequest {
+    string name = 1;
+}
+
+message DeleteRequest {
+    int64 id = 1;
+}
+
+message DeleteResponse {
+    bool ok = 1;
+}
