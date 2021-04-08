@@ -151,8 +151,7 @@ func main() {
 				fmt.Println("删除成功")
 			}
 		case CMD_SHOW:
-			confirm := true
-			books, err := (*(*client).pbc).ShowBooks(ctx, &pb.ShowBooksRequest{Req: confirm})
+			books, err := (*(*client).pbc).ShowBooks(ctx, &pb.ShowBooksRequest{})
 			if err != nil {
 				log.Println("could not query:", err)
 			} else {

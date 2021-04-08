@@ -4,7 +4,7 @@
 
 ### Dependence
 
-`golang 1.6+ or depoly on docker with [Dockerfile](./Dockerfile)`
+`golang 1.6+ or depoly on docker with Dockerfile`
 
 ### Server
 
@@ -22,3 +22,4 @@ go run client/client.go
 2. 按id查询：	`qbi [id]`
 3. 按name查询：	`qbn [name]`
 4. 删除图书：	`del [id]`
+5. 展示所有图书 `show`

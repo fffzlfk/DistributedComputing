@@ -41,9 +41,7 @@ message DeleteResponse {
     bool ok = 1;
 }
 
-message ShowBooksRequest {
-    bool req = 1;
-}
+message ShowBooksRequest {}
 
 message ShowBooksResponse {
     repeated Book books = 1;
