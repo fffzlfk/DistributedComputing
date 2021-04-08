@@ -20,6 +20,7 @@ const (
 	CMD_QUERY_BY_ID
 	CMD_QUERY_BY_NAME
 	CMD_DELETE
+	CMD_SHOW
 )
 
 type command struct {
@@ -28,7 +29,7 @@ type command struct {
 }
 
 const (
-	address = "localhost:50051"
+	address = "localhost:50052"
 )
 
 type client struct {
@@ -70,6 +71,11 @@ func (c *client) ReadInput() {
 				id:   CMD_DELETE,
 				args: args,
 			}
+		case "show":
+			c.commands <- command{
+				id:   CMD_SHOW,
+				args: args,
+			}
 		default:
 			fmt.Printf("unknown command: %s\n", cmd)
 		}
@@ -99,7 +105,8 @@ func main() {
 添加图书：	add [id] [name]
 按id查询：	qbi [id]
 按name查询：	qbn [name]
-删除图书：	del [id]`)
+删除图书：	del [id]
+展示所有图书:	show`)
 	fmt.Println()
 	for {
 		cmd := <-client.commands
@@ -142,6 +149,17 @@ func main() {
 				log.Printf("could not delete: %v\n", err.Error())
 			} else if r.Ok {
 				fmt.Println("删除成功")
+			}
+		case CMD_SHOW:
+			confirm := true
+			books, err := (*(*client).pbc).ShowBooks(ctx, &pb.ShowBooksRequest{Req: confirm})
+			if err != nil {
+				log.Println("could not query:", err)
+			} else {
+				fmt.Printf("所有书籍如下\n")
+				for i, book := range books.Books {
+					fmt.Printf("%dth: %v\n", i+1, book)
+				}
 			}
 		}
 	}

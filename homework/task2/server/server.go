@@ -66,8 +66,16 @@ func (s *BookInfoMgtServer) Delete(ctx context.Context, request *pb.DeleteReques
 	return &pb.DeleteResponse{Ok: false}, errors.New("没有此书")
 }
 
+func (s *BookInfoMgtServer) ShowBooks(ctx context.Context, request *pb.ShowBooksRequest) (*pb.ShowBooksResponse, error) {
+	books := make([]*pb.Book, 0)
+	for _, v := range s.books {
+		books = append(books, v)
+	}
+	return &pb.ShowBooksResponse{Books: books}, nil
+}
+
 var (
-	port = flag.String("port", ":50051", "set port")
+	port = flag.String("port", ":50052", "set port")
 )
 
 func init() {

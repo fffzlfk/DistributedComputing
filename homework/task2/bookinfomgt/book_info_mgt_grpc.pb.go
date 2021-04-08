@@ -22,6 +22,7 @@ type BookInfoMgtClient interface {
 	QueryById(ctx context.Context, in *QueryByIdRequest, opts ...grpc.CallOption) (*Book, error)
 	QueryByName(ctx context.Context, in *QueryByNameRequest, opts ...grpc.CallOption) (*BookList, error)
 	Delete(ctx context.Context, in *DeleteRequest, opts ...grpc.CallOption) (*DeleteResponse, error)
+	ShowBooks(ctx context.Context, in *ShowBooksRequest, opts ...grpc.CallOption) (*ShowBooksResponse, error)
 }
 
 type bookInfoMgtClient struct {
@@ -68,6 +69,15 @@ func (c *bookInfoMgtClient) Delete(ctx context.Context, in *DeleteRequest, opts 
 	return out, nil
 }
 
+func (c *bookInfoMgtClient) ShowBooks(ctx context.Context, in *ShowBooksRequest, opts ...grpc.CallOption) (*ShowBooksResponse, error) {
+	out := new(ShowBooksResponse)
+	err := c.cc.Invoke(ctx, "/bookinfomgt.BookInfoMgt/ShowBooks", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // BookInfoMgtServer is the server API for BookInfoMgt service.
 // All implementations must embed UnimplementedBookInfoMgtServer
 // for forward compatibility
@@ -76,6 +86,7 @@ type BookInfoMgtServer interface {
 	QueryById(context.Context, *QueryByIdRequest) (*Book, error)
 	QueryByName(context.Context, *QueryByNameRequest) (*BookList, error)
 	Delete(context.Context, *DeleteRequest) (*DeleteResponse, error)
+	ShowBooks(context.Context, *ShowBooksRequest) (*ShowBooksResponse, error)
 	mustEmbedUnimplementedBookInfoMgtServer()
 }
 
@@ -94,6 +105,9 @@ func (UnimplementedBookInfoMgtServer) QueryByName(context.Context, *QueryByNameR
 }
 func (UnimplementedBookInfoMgtServer) Delete(context.Context, *DeleteRequest) (*DeleteResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
+}
+func (UnimplementedBookInfoMgtServer) ShowBooks(context.Context, *ShowBooksRequest) (*ShowBooksResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ShowBooks not implemented")
 }
 func (UnimplementedBookInfoMgtServer) mustEmbedUnimplementedBookInfoMgtServer() {}
 
@@ -180,6 +194,24 @@ func _BookInfoMgt_Delete_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
+func _BookInfoMgt_ShowBooks_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ShowBooksRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BookInfoMgtServer).ShowBooks(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bookinfomgt.BookInfoMgt/ShowBooks",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BookInfoMgtServer).ShowBooks(ctx, req.(*ShowBooksRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // BookInfoMgt_ServiceDesc is the grpc.ServiceDesc for BookInfoMgt service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -203,7 +235,11 @@ var BookInfoMgt_ServiceDesc = grpc.ServiceDesc{
 			MethodName: "Delete",
 			Handler:    _BookInfoMgt_Delete_Handler,
 		},
+		{
+			MethodName: "ShowBooks",
+			Handler:    _BookInfoMgt_ShowBooks_Handler,
+		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "bookinfomgt/book_info_mgt.proto",
+	Metadata: "book_info_mgt.proto",
 }
