@@ -3,6 +3,7 @@ package main
 import (
 	pb "bookmanagement/bookinfomgt"
 	"context"
+	"errors"
 	"flag"
 	"log"
 	"net"
@@ -10,18 +11,21 @@ import (
 	"google.golang.org/grpc"
 )
 
-var (
-	port = flag.String("port", ":50051", "set port")
-)
-
 type BookInfoMgtServer struct {
 	pb.UnimplementedBookInfoMgtServer
 	books map[int64]*pb.Book
 }
 
+func NewBookInfoMgtServer(books map[int64]*pb.Book) *BookInfoMgtServer {
+	return &BookInfoMgtServer{books: books}
+}
+
 func (s *BookInfoMgtServer) AddBook(ctx context.Context, book *pb.Book) (*pb.AddBookResponse, error) {
+	if s.books[book.Id] != nil {
+		return &pb.AddBookResponse{Ok: false}, errors.New("已经存在")
+	}
 	s.books[book.Id] = book
-	log.Printf("added a book: name: %v, id: %v\n", book.Id, book.Name)
+	log.Printf("added a book: id: %v, name: %v\n", book.Id, book.Name)
 	return &pb.AddBookResponse{Ok: true}, nil
 }
 
@@ -33,7 +37,7 @@ func (s *BookInfoMgtServer) QueryById(ctx context.Context, request *pb.QueryById
 			return v, nil
 		}
 	}
-	return &pb.Book{Id: -1}, ctx.Err()
+	return &pb.Book{Id: -1}, errors.New("没有找到")
 }
 
 func (s *BookInfoMgtServer) QueryByName(ctx context.Context, request *pb.QueryByNameRequest) (*pb.BookList, error) {
@@ -59,8 +63,12 @@ func (s *BookInfoMgtServer) Delete(ctx context.Context, request *pb.DeleteReques
 			return &pb.DeleteResponse{Ok: true}, nil
 		}
 	}
-	return &pb.DeleteResponse{Ok: false}, ctx.Err()
+	return &pb.DeleteResponse{Ok: false}, errors.New("没有此书")
 }
+
+var (
+	port = flag.String("port", ":50051", "set port")
+)
 
 func init() {
 	flag.Parse()
@@ -71,12 +79,12 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
-
+	defer lis.Close()
 	log.Println("listen at", *port)
 
 	s := grpc.NewServer()
 	books := make(map[int64]*pb.Book)
-	pb.RegisterBookInfoMgtServer(s, &BookInfoMgtServer{books: books})
+	pb.RegisterBookInfoMgtServer(s, NewBookInfoMgtServer(books))
 
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)
