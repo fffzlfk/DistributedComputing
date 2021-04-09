@@ -23,8 +23,8 @@ func Test(t *testing.T) {
 
 	t.Run("AddBook", func(t *testing.T) {
 		book1 := &pb.Book{
-			Id:   1,
-			Name: "Rain",
+			Id:   101010,
+			Name: "TestRain",
 		}
 		r, err := c.AddBook(ctx, book1)
 		if err != nil {
@@ -36,41 +36,30 @@ func Test(t *testing.T) {
 	})
 
 	t.Run("QueryById", func(t *testing.T) {
-		book, err := c.QueryById(ctx, &pb.QueryByIdRequest{Id: 1})
+		book, err := c.QueryById(ctx, &pb.QueryByIdRequest{Id: 101010})
 		if err != nil {
 			t.Fatalf("could not query: %v\n", err)
 		}
 
-		if book.Name != "Rain" {
+		if book.Name != "TestRain" {
 			log.Fatal("QueryById 测试错误")
 		}
 	})
 
 	t.Run("QueryByName", func(t *testing.T) {
-		book2 := &pb.Book{
-			Id:   2,
-			Name: "Rain",
-		}
-		r, err := c.AddBook(ctx, book2)
-		if err != nil {
-			t.Fatalf("could not add: %v\n", err)
-		}
-		if !r.Ok {
-			t.Fatalf("AddBook failed")
-		}
 
-		books, err := c.QueryByName(ctx, &pb.QueryByNameRequest{Name: "Rain"})
+		books, err := c.QueryByName(ctx, &pb.QueryByNameRequest{Name: "TestRain"})
 		if err != nil {
 			t.Fatalf("could not query: %v", err)
 		}
 
-		if len(books.Books) != 2 {
+		if len(books.Books) != 1 {
 			t.Fatal("QueryByName 测试错误")
 		}
 	})
 
 	t.Run("Delete", func(t *testing.T) {
-		rsp, err := c.Delete(ctx, &pb.DeleteRequest{Id: 1})
+		rsp, err := c.Delete(ctx, &pb.DeleteRequest{Id: 101010})
 		if err != nil {
 			log.Println("could not delete:", err)
 		}
@@ -79,12 +68,9 @@ func Test(t *testing.T) {
 			t.Fatal("Delete 测试错误")
 		}
 
-		books, err := c.QueryByName(ctx, &pb.QueryByNameRequest{Name: "Rain"})
-		if err != nil {
-			t.Fatal("could not query:", err)
-		}
+		books, err := c.QueryById(ctx, &pb.QueryByIdRequest{Id: 101010})
 
-		if len(books.Books) != 1 {
+		if books != nil || err == nil {
 			t.Fatal("Delete 测试错误")
 		}
 	})

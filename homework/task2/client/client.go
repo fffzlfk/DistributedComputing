@@ -21,6 +21,7 @@ const (
 	CMD_QUERY_BY_NAME
 	CMD_DELETE
 	CMD_SHOW
+	CMD_QUIT
 )
 
 type command struct {
@@ -76,6 +77,11 @@ func (c *client) ReadInput() {
 				id:   CMD_SHOW,
 				args: args,
 			}
+		case "quit":
+			c.commands <- command{
+				id:   CMD_QUIT,
+				args: args,
+			}
 		default:
 			fmt.Printf("unknown command: %s\n", cmd)
 		}
@@ -106,8 +112,10 @@ func main() {
 按id查询：	qbi [id]
 按name查询：	qbn [name]
 删除图书：	del [id]
-展示所有图书:	show`)
+展示所有图书:	show
+退出		quit`)
 	fmt.Println()
+forLoop:
 	for {
 		cmd := <-client.commands
 		switch cmd.id {
@@ -153,13 +161,15 @@ func main() {
 		case CMD_SHOW:
 			books, err := (*(*client).pbc).ShowBooks(ctx, &pb.ShowBooksRequest{})
 			if err != nil {
-				log.Println("could not query:", err)
+				log.Println("could not show all books:", err)
 			} else {
 				fmt.Printf("所有书籍如下\n")
 				for i, book := range books.Books {
 					fmt.Printf("%dth: %v\n", i+1, book)
 				}
 			}
+		case CMD_QUIT:
+			break forLoop
 		}
 	}
 }

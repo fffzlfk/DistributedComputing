@@ -1,6 +1,7 @@
 ## 书籍信息管理系统
 
 - 采用grpc实现
+- [data.json](server/data.json)实现数据存储
 
 ### Dependence
 
@@ -23,3 +24,4 @@ go run client/client.go
 3. 按name查询：	`qbn [name]`
 4. 删除图书：	`del [id]`
 5. 展示所有图书 `show`
+6. 退出        `quit`
