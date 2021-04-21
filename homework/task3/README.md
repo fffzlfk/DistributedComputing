@@ -26,7 +26,7 @@ NSQ是一个基于Go语言的分布式实时消息平台。
 
 ### 设计思路
 
-- 生产者向`topic`中发动随机信号
+- 生产者向`topic`中采用异步方式发送随机信号
 - 四个消费者订阅该topic
 
 ![](https://files.catbox.moe/zgwmov.png)
