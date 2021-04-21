@@ -25,16 +25,29 @@ func main() {
 
 	topicName := "topic"
 
+	doChan := make(chan *nsq.ProducerTransaction)
+
+	go func() {
+		for {
+			select {
+			case res := <-doChan:
+				if res.Error != nil {
+					log.Println("send error:", res.Error.Error())
+				}
+			}
+		}
+	}()
+
 	// 发送1000个随机数
 	for i := 0; i < 1000; i++ {
 		num := generateNumber()
 		bits := math.Float64bits(num)
 		bytes := make([]byte, 8)
 		binary.LittleEndian.PutUint64(bytes, bits)
-		err = producer.Publish(topicName, bytes)
-
+		// err = producer.Publish(topicName, bytes)
+		err := producer.PublishAsync(topicName, bytes, doChan)
 		if err != nil {
-			log.Fatal(err)
+			log.Fatal("could not pulish:", err)
 		}
 
 		// 休眠10毫秒

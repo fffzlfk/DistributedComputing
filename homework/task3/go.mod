@@ -1,4 +1,4 @@
-module nsq-test
+module github.com/fffzlfk/singal
 
 go 1.16
 

@@ -2,15 +2,13 @@ package main
 
 import (
 	"encoding/binary"
-	"fmt"
 	"log"
 	"math"
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 
-	"github.com/montanaflynn/stats"
+	"github.com/fffzlfk/singal/subscriber"
 	"github.com/nsqio/go-nsq"
 	chart "github.com/wcharczuk/go-chart/v2"
 )
@@ -33,27 +31,8 @@ func (h *myMessageHandler) processMessage(m []byte) error {
 			for i := range nums {
 				nums[i] = <-h.nums
 			}
-			mean, err := stats.Mean(nums)
-			if err != nil {
-				log.Fatal("could not calculate the mean of nums:", mean)
-			}
-			fmt.Println("the mean: ", mean)
-			sd, err := stats.StandardDeviation(nums)
-			if err != nil {
-				log.Fatal("could not calculate the mean of var:", sd)
-			}
-
-			for _, v := range nums {
-				if v > mean+2.0*sd || v < mean-2.0*sd {
-					log.Println("异常点:", v)
-				}
-			}
-
-			fmt.Println("the sd: ", sd)
-			time.Sleep(time.Second)
-
 			mainSeries := chart.ContinuousSeries{
-				Name:    "A test series",
+				Name:    "random signal line chart",
 				XValues: chart.Seq{Sequence: chart.NewLinearSequence().WithStart(1.0).WithEnd(100.0)}.Values(), //generates a []float64 from 1.0 to 100.0 in 1.0 step increments, or 100 elements.
 				YValues: nums,                                                                                  //generates a []float64 randomly from 0 to 100 with 100 elements.
 			}
@@ -88,19 +67,10 @@ func (h *myMessageHandler) HandleMessage(m *nsq.Message) error {
 
 func main() {
 	// Instantiate a consumer that will subscribe to the provided channel.
-	config := nsq.NewConfig()
-	consumer, err := nsq.NewConsumer("topic", "channel", config)
-	if err != nil {
-		log.Fatal(err)
-	}
 
-	consumer.AddHandler(&myMessageHandler{make(chan float64, N)})
-
-	// Use nsqlookupd to discover nsqd instances.
-	// See also ConnectToNSQD, ConnectToNSQDs, ConnectToNSQLookupds.
-	err = consumer.ConnectToNSQLookupd("127.0.0.1:4161")
+	sub, err := subscriber.NewSubscriber("chart", &myMessageHandler{make(chan float64, N)}, "127.0.0.1:4161")
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("could not create a subscriber:", err)
 	}
 
 	// wait for signal to exit
@@ -108,6 +78,6 @@ func main() {
 	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
 	<-sigChan
 
-	// Gracefully stop the consumer.
-	consumer.Stop()
+	// Gracefully stop the subscriber.
+	sub.Stop()
 }
