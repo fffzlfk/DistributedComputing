@@ -33,8 +33,8 @@ func (h *myMessageHandler) processMessage(m []byte) error {
 			}
 			mainSeries := chart.ContinuousSeries{
 				Name:    "random signal line chart",
-				XValues: chart.Seq{Sequence: chart.NewLinearSequence().WithStart(1.0).WithEnd(100.0)}.Values(), //generates a []float64 from 1.0 to 100.0 in 1.0 step increments, or 100 elements.
-				YValues: nums,                                                                                  //generates a []float64 randomly from 0 to 100 with 100 elements.
+				XValues: chart.Seq{Sequence: chart.NewLinearSequence().WithStart(1.0).WithEnd(100.0)}.Values(),
+				YValues: nums,
 			}
 
 			linRegSeries := &chart.LinearRegressionSeries{
