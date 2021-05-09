@@ -28,6 +28,9 @@ NSQ是一个基于Go语言的分布式实时消息平台。
 
 - 生产者向`topic`中采用异步方式发送随机信号
 - 四个消费者订阅该topic
+- 折线图绘制
+    - 使用gin框架将数据以json格式推送到`http://localhost:8080`
+    - 使用echarts从后端获取数据，并完成绘制
 
 ![](https://files.catbox.moe/zgwmov.png)
 
@@ -44,11 +47,15 @@ go run producer/producer.go
 go run mean/mean.go #in other terminal
 ```
 
+![](https://files.catbox.moe/nfeggr.png)
+
 #### 计算方差
 
 ```
 go run variance/variance.go #in other terminal
 ```
+
+![](https://files.catbox.moe/uwaw72.png)
 
 #### 异常点检测
 
@@ -56,10 +63,13 @@ go run variance/variance.go #in other terminal
 go run outlier/outlier.go #in other terminal
 ```
 
+![](https://files.catbox.moe/0ywaxi.png)
+
 #### 图像绘制
 
 ```
 go run chart/chart.go #in other terminal
 ```
 
-图像保存在`output.png`
+打开`chart/index.html`可查看使用echarts绘制的折线图
+![](https://files.catbox.moe/7o6ml6.gif)

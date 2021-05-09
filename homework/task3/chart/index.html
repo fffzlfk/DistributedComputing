@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>ECharts</title>
+
+    <!-- 引入 echarts.js -->
+    <script src="https://cdn.staticfile.org/echarts/4.3.0/echarts.min.js"></script>
+
+    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.js"></script>
+
+</head>
+
+<body>
+    <!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+    <div id="main" style="width: 1200px;height:600px;"></div>
+    <script type="text/javascript">
+        // 指定图表的配置项和数据
+        var myChart = echarts.init(document.getElementById('main'));
+
+
+        function fetchData() {
+            setTimeout(function () {
+                $.getJSON('http://127.0.0.1:8080').done(function (data) {
+                    myChart.hideLoading();
+                    myChart.setOption({
+                        xAxis: {
+                            type: 'category',
+                            data: [...Array(data.data.length).keys()]
+                        },
+                        series: [{
+                            data: data.data
+                        }]
+                    });
+                });
+            })
+        }
+
+
+        $(function () {
+            // 显示标题，图例和空的坐标轴
+            myChart.setOption({
+                title: {
+                    show: true,
+                    text: "随机信号折线图",
+                    left: "center",
+                    textStyle: {
+                        fontSize: 30
+                    },
+                },
+                xAxis: {
+                    type: 'category',
+                    data: [...Array(100).keys()]
+                },
+                yAxis: {
+                    type: 'value'
+                },
+                series: [{
+                    data: [],
+                    type: 'line',
+                    smooth: true
+                }],
+                animation: false,
+            });
+
+
+            // 异步加载数据
+            myChart.showLoading();
+            fetchData();
+        })
+
+        $(function () {
+            fetchData(); // 第一次加载数据
+            // 开启定时任务，时间间隔为3000 ms。
+            setInterval(function () {
+                fetchData();
+            }, 10);
+        });
+    </script>
+</body>
+
+</html>

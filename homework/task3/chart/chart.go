@@ -4,54 +4,33 @@ import (
 	"encoding/binary"
 	"log"
 	"math"
+	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 
 	"github.com/fffzlfk/singal/subscriber"
+	"github.com/gin-gonic/gin"
 	"github.com/nsqio/go-nsq"
-	chart "github.com/wcharczuk/go-chart/v2"
 )
 
-const N = 100
+const (
+	N = 100
+)
 
-type myMessageHandler struct {
-	nums chan float64
-}
+var globalNums []float64
+
+type myMessageHandler struct{}
 
 func (h *myMessageHandler) processMessage(m []byte) error {
-
 	bits := binary.LittleEndian.Uint64(m)
 	num := math.Float64frombits(bits)
 	// fmt.Println(num)
-	h.nums <- num
-	if len(h.nums) == N {
-		go func() {
-			nums := make([]float64, N)
-			for i := range nums {
-				nums[i] = <-h.nums
-			}
-			mainSeries := chart.ContinuousSeries{
-				Name:    "random signal line chart",
-				XValues: chart.Seq{Sequence: chart.NewLinearSequence().WithStart(1.0).WithEnd(100.0)}.Values(),
-				YValues: nums,
-			}
-
-			linRegSeries := &chart.LinearRegressionSeries{
-				InnerSeries: mainSeries,
-			}
-			graph := chart.Chart{
-				Series: []chart.Series{
-					mainSeries,
-					linRegSeries,
-				},
-			}
-			// 绘制过去一段时间内随机信号的折线图到output.png
-			f, _ := os.Create("output.png")
-			defer f.Close()
-			graph.Render(chart.PNG, f)
-		}()
+	if len(globalNums) > 300 {
+		globalNums = globalNums[1:]
 	}
+	globalNums = append(globalNums, num)
+
 	return nil
 }
 
@@ -68,10 +47,18 @@ func (h *myMessageHandler) HandleMessage(m *nsq.Message) error {
 func main() {
 	// Instantiate a consumer that will subscribe to the provided channel.
 
-	sub, err := subscriber.NewSubscriber("chart", &myMessageHandler{make(chan float64, N)}, "127.0.0.1:4161")
+	sub, err := subscriber.NewSubscriber("chart", &myMessageHandler{}, "127.0.0.1:4161")
 	if err != nil {
 		log.Fatal("could not create a subscriber:", err)
 	}
+
+	r := gin.Default()
+	r.GET("/", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{
+			"data": globalNums,
+		})
+	})
+	r.Run(":8080")
 
 	// wait for signal to exit
 	sigChan := make(chan os.Signal, 1)
