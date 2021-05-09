@@ -12,7 +12,7 @@ import (
 
 // 产生随机数
 func generateNumber() float64 {
-	return rand.Float64()
+	return rand.NormFloat64()
 }
 
 func main() {
@@ -28,12 +28,9 @@ func main() {
 	doChan := make(chan *nsq.ProducerTransaction)
 
 	go func() {
-		for {
-			select {
-			case res := <-doChan:
-				if res.Error != nil {
-					log.Println("send error:", res.Error.Error())
-				}
+		for res := range doChan {
+			if res.Error != nil {
+				log.Println("send error:", res.Error.Error())
 			}
 		}
 	}()

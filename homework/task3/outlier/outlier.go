@@ -43,7 +43,7 @@ func (h *myMessageHandler) processMessage(m []byte) error {
 			}
 
 			for _, v := range nums {
-				if v > mean+2.0*sd || v < mean-2.0*sd {
+				if v > mean+3.0*sd || v < mean-3.0*sd {
 					log.Println("异常点:", v)
 				}
 			}
