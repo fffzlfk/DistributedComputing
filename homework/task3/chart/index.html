@@ -51,7 +51,7 @@
                 },
                 xAxis: {
                     type: 'category',
-                    data: [...Array(100).keys()]
+                    data: [...Array(300).keys()]
                 },
                 yAxis: {
                     type: 'value'
@@ -72,7 +72,7 @@
 
         $(function () {
             fetchData(); // 第一次加载数据
-            // 开启定时任务，时间间隔为3000 ms。
+            // 开启定时任务，时间间隔为10 ms。
             setInterval(function () {
                 fetchData();
             }, 10);
