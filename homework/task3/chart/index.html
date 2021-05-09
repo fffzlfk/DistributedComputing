@@ -26,7 +26,6 @@
                     myChart.hideLoading();
                     myChart.setOption({
                         xAxis: {
-                            type: 'category',
                             data: [...Array(data.data.length).keys()]
                         },
                         series: [{
@@ -51,7 +50,6 @@
                 },
                 xAxis: {
                     type: 'category',
-                    data: [...Array(300).keys()]
                 },
                 yAxis: {
                     type: 'value'
