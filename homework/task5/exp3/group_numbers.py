@@ -36,6 +36,8 @@ if __name__ == '__main__':
     conf = SparkConf().setMaster("local").setAppName("numbers")
     sc = SparkContext(conf=conf)
     data = sc.textFile("/input/grades.txt").filter(filter)
-    res = data.map(mapper).reduceByKey(reducer).map(lambda x: (
-        x[0], round(x[1][1]/x[1][0]))).map(classify).countByKey().items()
-    sc.parallelize(res).saveAsTextFile("/output/task3/2")
+    average_grades = data.map(mapper).reduceByKey(reducer).map(lambda x: (
+        x[0], round(x[1][1]/x[1][0])))
+    average_grades.saveAsTextFile("/output/task3/1")
+    group_items = average_grades.map(classify).countByKey().items()
+    sc.parallelize(group_items).saveAsTextFile("/output/task3/2")
